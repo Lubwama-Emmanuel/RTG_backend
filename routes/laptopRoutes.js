@@ -7,5 +7,6 @@ router.post(
   laptopController.upload.single("image"),
   laptopController.addLaptop
 );
+router.get("/getLaptops", laptopController.getLaptops);
 
 module.exports = router;
