@@ -24,10 +24,21 @@ exports.upload = multer({ storage, fileFilter });
 
 exports.addLaptop = async (req, res) => {
   try {
-    const { name } = req.body;
+    console.log("REQ BODY", req.body);
+    const { name, brand, processor, storage, size, generation, core } =
+      req.body;
     const image = req.file.path;
 
-    const newLaptop = await Laptop.create({ name, image });
+    const newLaptop = await Laptop.create({
+      name,
+      brand,
+      processor,
+      storage,
+      size,
+      generation,
+      core,
+      image,
+    });
 
     res.status(201).json({
       status: "success",
@@ -46,6 +57,7 @@ exports.getLaptops = async (req, res) => {
     res.status(200).json({
       status: "success",
       data: {
+        length: laptops.length,
         laptops,
       },
     });
