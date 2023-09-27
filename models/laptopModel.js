@@ -18,7 +18,6 @@ const laptopSchema = mongoose.Schema({
   },
   processor: {
     type: String,
-    enum: ["intel", "amd"],
   },
   core: {
     type: String,
@@ -28,7 +27,6 @@ const laptopSchema = mongoose.Schema({
   },
   storage: {
     type: String,
-    enum: ["ssd", "hdd"],
   },
   size: {
     type: String,
