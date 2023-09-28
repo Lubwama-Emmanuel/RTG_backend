@@ -40,8 +40,18 @@ async function handleUpload(file) {
 
 exports.addLaptop = async (req, res) => {
   try {
-    const { name, brand, processor, storage, size, generation, core } =
-      req.body;
+    const {
+      name,
+      brand,
+      processor,
+      storage,
+      size,
+      generation,
+      core,
+      screen,
+      price,
+      desc,
+    } = req.body;
 
     const images = req.files;
 
@@ -70,6 +80,9 @@ exports.addLaptop = async (req, res) => {
       core,
       mainImage,
       otherImages,
+      screen,
+      price,
+      desc,
     });
 
     res.status(201).json({
