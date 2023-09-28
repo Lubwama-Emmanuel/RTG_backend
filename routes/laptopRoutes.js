@@ -4,7 +4,7 @@ const laptopController = require("../controllers/laptopController");
 
 router.post(
   "/addLaptop",
-  laptopController.upload.single("image"),
+  laptopController.upload.array("images", 5),
   laptopController.addLaptop
 );
 router.get("/getLaptops", laptopController.getLaptops);

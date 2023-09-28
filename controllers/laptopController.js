@@ -43,11 +43,21 @@ exports.addLaptop = async (req, res) => {
     const { name, brand, processor, storage, size, generation, core } =
       req.body;
 
-    const b64 = Buffer.from(req.file.buffer).toString("base64");
-    let dataURI = "data:" + req.file.mimetype + ";base64," + b64;
-    const cldRes = await handleUpload(dataURI);
+    const images = req.files;
 
-    const image = cldRes.secure_url;
+    const cldRes = await Promise.all(
+      images.map(async (image) => {
+        const b64 = Buffer.from(image.buffer).toString("base64");
+        let dataURI = "data:" + image.mimetype + ";base64," + b64;
+        const cloudinaryRes = await handleUpload(dataURI);
+        return cloudinaryRes;
+      })
+    );
+
+    const mainImage = cldRes[0].secure_url;
+    const otherImages = [];
+    cldRes.slice(1).map((el) => otherImages.push(el.secure_url));
+
     // res.json(cldRes);
 
     const newLaptop = await Laptop.create({
@@ -58,7 +68,8 @@ exports.addLaptop = async (req, res) => {
       size,
       generation,
       core,
-      image,
+      mainImage,
+      otherImages,
     });
 
     res.status(201).json({

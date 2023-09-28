@@ -4,7 +4,7 @@ const laptopSchema = mongoose.Schema({
   name: {
     type: String,
   },
-  image: {
+  mainImage: {
     type: String,
   },
   brand: {
@@ -30,6 +30,18 @@ const laptopSchema = mongoose.Schema({
   },
   size: {
     type: String,
+  },
+  otherImages: {
+    type: Array,
+  },
+  desc: {
+    type: String,
+  },
+  screen: {
+    type: String,
+  },
+  price: {
+    type: Number,
   },
 });
 
