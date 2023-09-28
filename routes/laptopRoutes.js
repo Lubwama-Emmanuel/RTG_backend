@@ -8,5 +8,6 @@ router.post(
   laptopController.addLaptop
 );
 router.get("/getLaptops", laptopController.getLaptops);
+router.get("/getLaptop/:id", laptopController.getLaptopById);
 
 module.exports = router;

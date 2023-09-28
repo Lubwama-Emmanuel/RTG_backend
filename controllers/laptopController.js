@@ -87,3 +87,20 @@ exports.getLaptops = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+exports.getLaptopById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const laptop = await Laptop.findById({ _id: id });
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        laptop,
+      },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
