@@ -95,9 +95,7 @@ exports.getLaptopById = async (req, res) => {
 
     res.status(200).json({
       status: "success",
-      data: {
-        laptop,
-      },
+      data: laptop,
     });
   } catch (error) {
     console.error(error);
