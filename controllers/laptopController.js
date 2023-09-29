@@ -55,6 +55,9 @@ exports.addLaptop = async (req, res) => {
 
     const images = req.files;
 
+    console.log("images", images);
+    console.log("body", req.body);
+
     const cldRes = await Promise.all(
       images.map(async (image) => {
         const b64 = Buffer.from(image.buffer).toString("base64");
@@ -63,6 +66,8 @@ exports.addLaptop = async (req, res) => {
         return cloudinaryRes;
       })
     );
+
+    console.log(cldRes);
 
     const mainImage = cldRes[0].secure_url;
     const otherImages = [];
