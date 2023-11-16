@@ -1,28 +1,12 @@
-const Laptop = require("../models/laptopModel");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
 
 const dotenv = require("dotenv");
+const pool = require("../utils/db");
 
 dotenv.config({ path: "./config.env" });
 
 const storage = new multer.memoryStorage();
-// const storage = multer.diskStorage({
-//   destination: function (req, file, cb) {
-//     cb(null, path.join("./public/uploads"));
-//   },
-//   filename: function (req, file, cb) {
-//     cb(null, file.originalname);
-//   },
-// });
-
-// const fileFilter = function (req, file, cb) {
-//   if (file.mimetype === "image/jpeg" || file.mimetype === "image/png") {
-//     cb(null, true);
-//   } else {
-//     cb(null, false);
-//   }
-// };
 
 exports.upload = multer({ storage });
 
@@ -39,43 +23,41 @@ async function handleUpload(file) {
 }
 
 exports.addLaptop = async (req, res) => {
-  try {
-    const {
-      name,
-      brand,
-      processor,
-      storage,
-      size,
-      generation,
-      core,
-      screen,
-      price,
-      desc,
-    } = req.body;
+  const {
+    name,
+    brand,
+    processor,
+    storage,
+    size,
+    generation,
+    core,
+    screen,
+    price,
+    description,
+  } = req.body;
 
-    const images = req.files;
+  const images = req.files;
 
-    console.log("images", images);
-    console.log("body", req.body);
+  const cldRes = await Promise.all(
+    images.map(async (image) => {
+      const b64 = Buffer.from(image.buffer).toString("base64");
+      let dataURI = "data:" + image.mimetype + ";base64," + b64;
+      const cloudinaryRes = await handleUpload(dataURI);
+      return cloudinaryRes;
+    })
+  );
 
-    const cldRes = await Promise.all(
-      images.map(async (image) => {
-        const b64 = Buffer.from(image.buffer).toString("base64");
-        let dataURI = "data:" + image.mimetype + ";base64," + b64;
-        const cloudinaryRes = await handleUpload(dataURI);
-        return cloudinaryRes;
-      })
-    );
+  console.log(cldRes);
 
-    console.log(cldRes);
+  const mainImage = cldRes[0].secure_url;
+  const otherImages = [];
+  cldRes.slice(1).map((el) => otherImages.push(el.secure_url));
 
-    const mainImage = cldRes[0].secure_url;
-    const otherImages = [];
-    cldRes.slice(1).map((el) => otherImages.push(el.secure_url));
+  // res.json(cldRes);
 
-    // res.json(cldRes);
-
-    const newLaptop = await Laptop.create({
+  pool.query(
+    "INSERT INTO laptops ( name, brand, processor, storage, size, generation, core, main_image, other_images, screen, price, description) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
+    [
       name,
       brand,
       processor,
@@ -87,34 +69,34 @@ exports.addLaptop = async (req, res) => {
       otherImages,
       screen,
       price,
-      desc,
-    });
-
-    res.status(201).json({
-      status: "success",
-      data: newLaptop,
-    });
-  } catch (error) {
-    console.error("an error here", error);
-    res.status(500).json({ error: "Internal server error" });
-  }
+      description,
+    ],
+    (error, results) => {
+      if (error) {
+        console.error("an error here", error);
+        res.status(500).json({ error: "Internal server error" });
+      } else {
+        console.log("HERE ARE THE RESULTS", results);
+        res.status(201).json({
+          status: "success",
+        });
+      }
+    }
+  );
 };
 
 exports.getLaptops = async (req, res) => {
-  try {
-    const laptops = await Laptop.find();
-
+  pool.query("SELECT * FROM laptops", (error, results) => {
+    if (error) {
+      console.log("AN ERROR OCCURED", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+    console.log("HERE ARE THE RESULTS", results);
     res.status(200).json({
       status: "success",
-      data: {
-        length: laptops.length,
-        laptops,
-      },
+      data: results.rows,
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Internal server error" });
-  }
+  });
 };
 
 exports.getLaptopById = async (req, res) => {
